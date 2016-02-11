@@ -42,6 +42,7 @@ typedef struct _shdr_t
     ((_shdr).is_64bit ? (_shdr).u.ver64._field : (_shdr).u.ver32._field)
 
 /* Returns index of the first non-whitespace char in 'data' starting at 'idx' */
+#if USE_ASPELL
 static size_t skip_whitespace(const unsigned char *data, size_t idx, size_t end)
 {
     ssize_t i;
@@ -51,13 +52,16 @@ static size_t skip_whitespace(const unsigned char *data, size_t idx, size_t end)
     }
     return (isspace(data[i]) && (i-1) >= idx) ? i-1 : i;
 }
+#endif
 
+#if USE_ASPELL
 static inline void print_char(char c, int n)
 {
     int i;
     for (i=0; i<n; ++i)
       putc(c, stdout);
 }
+#endif
 
 /* Spell check each space delimited word from st to en */
 static void spell_check(unsigned char *data, size_t st, size_t en)
