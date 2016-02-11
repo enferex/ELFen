@@ -79,11 +79,11 @@ static void spell_check(unsigned char *data, size_t st, size_t en)
     for ( ; idx<en; ++idx) {
        if (isspace(data[idx]) && ((idx - word_st) > 0)) {
            size_t len = idx - word_st;
-           if (!isalpha(data[idx]))
+           if (!isalpha(data[idx-1]))
              --len;
            ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
            /* Spelling error, highlight: */
-           if (ok != 1) {
+           if (ok == 0) {
                int n_spaces = idx - st - spaces_count - (idx - word_st);
                ++n_errors;
                print_char('_', n_spaces);
