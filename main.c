@@ -7,10 +7,19 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <elf.h>
+#if USE_ASPELL
+#include <aspell.h>
+#endif
 
 /* Options */
 static int opt_min_length = 3;
 static _Bool opt_do_spell = false;
+#if USE_ASPELL
+AspellSpeller *spell;
+static const _Bool use_aspell = true;
+#else
+static const _Bool use_aspell = false;
+#endif
 
 #define ERR(...) \
     do { \
@@ -32,6 +41,60 @@ typedef struct _shdr_t
 #define SHDR(_shdr, _field) \
     ((_shdr).is_64bit ? (_shdr).u.ver64._field : (_shdr).u.ver32._field)
 
+/* Returns index of the first non-whitespace char in 'data' starting at 'idx' */
+static size_t skip_whitespace(const unsigned char *data, size_t idx, size_t end)
+{
+    ssize_t i;
+    for (i=idx; i<end; ++i) {
+       if (!isspace(data[i]))
+         break;
+    }
+    return (isspace(data[i]) && (i-1) >= idx) ? i-1 : i;
+}
+
+static inline void print_char(char c, int n)
+{
+    int i;
+    for (i=0; i<n; ++i)
+      putc(c, stdout);
+}
+
+/* Spell check each space delimited word from st to en */
+static void spell_check(unsigned char *data, size_t st, size_t en)
+{
+#if USE_ASPELL
+    int n_errors, ok;
+    size_t idx, word_st, spaces_count;
+
+    word_st = 0;
+    n_errors = 0;
+    spaces_count = 0;
+
+    /* For each word... */
+    idx = skip_whitespace(data, st, en);
+    for ( ; idx<en; ++idx) {
+       if (isspace(data[idx]) && ((idx - word_st) > 0)) {
+           size_t len = idx - word_st;
+           if (!isalpha(data[idx]))
+             --len;
+           ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
+           /* Spelling error, highlight: */
+           if (ok != 1) {
+               int n_spaces = idx - st - spaces_count - (idx - word_st);
+               ++n_errors;
+               print_char('_', n_spaces);
+               putc('^', stdout);
+               spaces_count += n_spaces+1;
+           }
+           word_st = idx = skip_whitespace(data, idx, en);
+       }
+    }
+
+    if (n_errors)
+      printf(" [%d spelling error%s\n", n_errors, n_errors==1 ? "]" : "s]");
+#endif /* USE_ASPELL */
+}
+
 /* Dump the printable characters terminated by a '\0' */
 static void stringz(uint8_t *data, size_t len)
 {
@@ -46,7 +109,8 @@ static void stringz(uint8_t *data, size_t len)
                 for (s=start; s<i; ++s)
                   putc(data[s], stdout);
                 putc('\n', stdout);
-                fflush(NULL);
+                if (opt_do_spell)
+                  spell_check(data, start, i);
             }
             start = -1;
         }
@@ -55,6 +119,7 @@ static void stringz(uint8_t *data, size_t len)
         else if (start == -1 && !isspace(val)) /* Must be first printable we have seen */
           start = i;
     }
+    fflush(NULL);
 }
 
 /* Parse the binary */
@@ -108,10 +173,13 @@ static void parse_elf(const char *fname)
 
 static void usage(const char *execname)
 {
-    printf("Usage: %s [-s] [-n num] file...\n"
+    printf("Usage: %s %s [-n num] file...\n"
            "  -h: Help!\n"
+#if USE_ASPELL
            "  -s: Spell check string literals\n"
+#endif
            "  -n: Minimum string length to display (Default 4)\n",
+           use_aspell ? "[-s]" : "",
            execname);
     exit(EXIT_SUCCESS);
 }
@@ -123,14 +191,33 @@ int main(int argc, char **argv)
     while ((opt = getopt(argc, argv, "hsn:")) != -1) {
         switch (opt) {
         case 'h': usage(argv[0]); break;
+#if USE_ASPELL
         case 's': opt_do_spell = true; break;
+#endif
         case 'n': opt_min_length = atoi(optarg); break;
         default: usage(argv[0]); break;
         }
     }
 
+#if USE_ASPELL
+    if (opt_do_spell) {
+        AspellConfig *cfg;
+        AspellCanHaveError *err;
+        const char *lang;
+        cfg = new_aspell_config();
+        lang = getenv("LANG");
+        if (lang && strlen(lang))
+          aspell_config_replace(cfg, "lang", lang);
+        err = new_aspell_speller(cfg);
+        if (aspell_error_number(err))
+          ERR("aspell initilization error: %s", aspell_error_message(err));
+        spell = to_aspell_speller(err);
+    }
+#endif /* USE_ASPELL */
+
     for (i=optind; i<argc; ++i) {
-        printf("== Parsing %s ==\n", argv[i]);
+        if ((argc - optind) > 1)
+          printf("== Parsing %s ==\n", argv[i]);
         parse_elf(argv[i]);
     }
 
