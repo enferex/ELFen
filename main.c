@@ -133,7 +133,7 @@ static void parse_elf(const char *fname)
     long loc;
     size_t shdr_size;
     uint8_t *data;
-    shdr_t shdr;
+    shdr_t shdr = {0};
     Elf64_Ehdr hdr;
     
     if (!(fp = fopen(fname, "r")))
