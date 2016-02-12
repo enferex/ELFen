@@ -1,4 +1,4 @@
-APP=elfish
+APP=elfen
 CC=gcc
 CFLAGS=-Wall -std=c99 -pedantic -g3 -O0
 LDFLAGS=
