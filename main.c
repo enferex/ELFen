@@ -75,7 +75,7 @@ static void spell_check(unsigned char *data, size_t st, size_t en)
     spaces_count = 0;
 
     /* For each word... */
-    idx = skip_whitespace(data, st, en);
+    word_st = idx = skip_whitespace(data, st, en);
     for ( ; idx<en; ++idx) {
        if (isspace(data[idx]) && ((idx - word_st) > 0)) {
            size_t len = idx - word_st;
