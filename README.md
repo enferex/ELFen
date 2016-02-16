@@ -5,7 +5,10 @@ ELFen is a strings-like utility for extracting printable strings from read-only
 data sections of ELF files.  This utility also has the ability to spell check
 these strings.
 
-Dependencies:
+This tool intentionally does not process .debug symbols or relocation symbol
+names.
+
+#### Dependencies
 If you want spell checking wizardry then you will need
 GNU aspell <http://www.aspell.net> and any appropriate dictionaries.
 
