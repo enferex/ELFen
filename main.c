@@ -57,7 +57,7 @@ static size_t skip_whitespace(const unsigned char *data, size_t idx, size_t end)
 #endif
 
 #if USE_ASPELL
-static inline void print_char(char c, int n)
+static inline void print_chars(char c, int n)
 {
     int i;
     for (i=0; i<n; ++i)
@@ -134,7 +134,7 @@ static void spell_check_annotate(unsigned char *data, size_t st, size_t en)
            /* Spelling error, highlight: */
            if (opt_do_spell == SPELL_ANNOTATE && ok == 0) {
                int n_spaces = idx - st - spaces_count - (idx - word_st);
-               print_char('_', n_spaces);
+               print_chars('_', n_spaces);
                putc('^', stdout);
                spaces_count += n_spaces+1;
            }
