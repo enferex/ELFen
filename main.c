@@ -1,3 +1,11 @@
+/* Copyright (c) 2016, Matt Davis following the permissive ISC license.
+ * See the LICENSE file that accompanies this software.
+ * https://www.isc.org/downloads/software-support-policy/isc-license/
+ *
+ * ELFen - Man page parsing library.
+ *
+ * Matt Davis: https://www.github.com/enferex/goman
+ */
 #define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,7 +93,7 @@ static void spell_check_underline(unsigned char *data, size_t st, size_t en)
         }
         if (idx > en)
           break;
-          
+
         /* Find the next whitespace (the end of the word) */
         word_st = idx;
         word_en = idx;
@@ -138,7 +146,7 @@ static void spell_check_annotate(unsigned char *data, size_t st, size_t en)
              ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
            if (ok == 0)
              ++n_errors;
-           
+
            /* Spelling error, highlight: */
            if (opt_do_spell == SPELL_ANNOTATE && ok == 0) {
                int n_spaces = idx - st - spaces_count - (idx - word_st);
@@ -159,7 +167,7 @@ static void spell_check_annotate(unsigned char *data, size_t st, size_t en)
 /* Dump the printable characters terminated by a '\0' */
 static void stringz(uint8_t *data, size_t len)
 {
-    size_t i, s; 
+    size_t i, s;
     ssize_t start = -1;
 
     for (i=0; i<len; ++i) {
@@ -197,7 +205,7 @@ static void parse_elf(const char *fname)
     uint8_t *data;
     shdr_t shdr = {0};
     Elf64_Ehdr hdr;
-    
+
     if (!(fp = fopen(fname, "r")))
       ERR("Error opening binary %s", fname);
 
