@@ -2,9 +2,9 @@
  * See the LICENSE file that accompanies this software.
  * https://www.isc.org/downloads/software-support-policy/isc-license/
  *
- * ELFen - Man page parsing library.
+ * ELFen: Extract and spell check read-only strings within ELF binaries.
  *
- * Matt Davis: https://www.github.com/enferex/goman
+ * Matt Davis: https://www.github.com/enferex/ELFen
  */
 #define _DEFAULT_SOURCE
 #include <stdio.h>
