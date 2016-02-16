@@ -14,6 +14,8 @@
 /* Options */
 static int opt_min_length = 3;
 static int opt_do_spell = 0;
+
+/* Aspell specifics */
 #define SPELL_ANNOTATE  1
 #define SPELL_UNDERLINE 2
 #if USE_ASPELL
@@ -23,6 +25,7 @@ static const _Bool use_aspell = true;
 static const _Bool use_aspell = false;
 #endif
 
+/* Error output utility */
 #define ERR(...) \
     do { \
         fprintf(stderr, "[error] "__VA_ARGS__); \
@@ -30,6 +33,7 @@ static const _Bool use_aspell = false;
         exit(EXIT_FAILURE);\
     } while (0)
 
+/* Size agnostic ELF section header */
 typedef struct _shdr_t
 {
     _Bool is_64bit;
