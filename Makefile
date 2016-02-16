@@ -10,7 +10,7 @@ all: $(APP)
 .PHONY: aspell
 aspell: CFLAGS+=-DUSE_ASPELL=1
 aspell: LDFLAGS+=-laspell
-aspell: $(OBJS) $(APP)
+aspell: clean $(OBJS) $(APP)
 
 $(APP): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
