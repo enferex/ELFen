@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <elf.h>
+#include <getopt.h>
 #if USE_ASPELL
 #include <aspell.h>
 #endif
