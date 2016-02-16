@@ -97,10 +97,12 @@ static void spell_check_underline(unsigned char *data, size_t st, size_t en)
         }
 
         /* Spell check the word and print it (highlighting if the word sucks) */
+        ok = 1;
         len = word_en - word_st;
         if (!isalpha(data[word_en-1]))
           --len;
-        ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
+        if (isalpha(data[word_st]))
+          ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
         if (ok == 0)
           printf("\033[31;4m");
         for (s=word_st; s<word_en; ++s)
@@ -128,10 +130,12 @@ static void spell_check_annotate(unsigned char *data, size_t st, size_t en)
     for ( ; idx<en; ++idx) {
        if (isspace(data[idx]) && ((idx - word_st) > 0)) {
            size_t len = idx - word_st;
+
+           ok = 1;
            if (!isalpha(data[idx-1]))
              --len;
-
-           ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
+           if (isalpha(data[word_st]))
+             ok = aspell_speller_check(spell, (const char *)(data+word_st), len);
            if (ok == 0)
              ++n_errors;
            
@@ -275,7 +279,7 @@ int main(int argc, char **argv)
           aspell_config_replace(cfg, "lang", lang);
         err = new_aspell_speller(cfg);
         if (aspell_error_number(err))
-          ERR("aspell initilization error: %s", aspell_error_message(err));
+          ERR("aspell initialization error: %s", aspell_error_message(err));
         spell = to_aspell_speller(err);
     }
 #endif /* USE_ASPELL */
